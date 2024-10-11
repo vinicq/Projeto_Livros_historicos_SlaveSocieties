@@ -1,0 +1,22 @@
+{
+  "name": "projeto_livros_historicos",
+  "version": "1.0.0",
+  "description": "Projeto para download de livros históricos com descrição.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "automacao": "node automacao/automacao.js",
+    "baixarImagens": "node src/services/downloadService.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.0.0",
+    "exceljs": "^4.4.0",
+    "fs-extra": "^10.0.0",
+    "puppeteer": "^23.5.2",
+    "sharp": "^0.30.7",
+    "sqlite3": "^5.1.7"
+  }
+}

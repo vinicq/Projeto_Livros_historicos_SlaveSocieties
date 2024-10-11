@@ -1,0 +1,30 @@
+# Ignore node_modules folder
+node_modules/
+
+# Ignore all files in the livros directory
+livros/
+
+# Ignore all files in the logs directory
+logs/
+
+# Ignore environment configuration files
+.env
+
+# Ignore SQLite database files
+*.db
+
+# Ignore temporary files
+*.tmp
+*.log
+
+# Ignore build or distribution directories
+dist/
+build/
+out/
+
+# Ignore OS-generated files
+.DS_Store
+Thumbs.db
+
+# Ignore Visual Studio Code settings (if applicable)
+.vscode/
