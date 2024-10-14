@@ -6,11 +6,11 @@
   "scripts": {
     "start": "node src/index.js",
     "automacao": "node automacao/automacao.js",
-    "baixarImagens": "node src/services/downloadService.js"
+    "baixarImagens": "node src/services/downloadService.js",
+    "downloadLivros": "node src/scripts/main.js downloadLivros",
+    "gerarSJDC": "node src/scripts/main.js gerarSJDC",
+    "gerarBancoDeDados": "node src/scripts/main.js gerarBancoDeDados"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "axios": "^1.0.0",
     "exceljs": "^4.4.0",

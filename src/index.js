@@ -6,12 +6,10 @@ const downloadService = require('./services/downloadService');
 const gerarSJDC = require('../scripts/gerarSJDC');
 const fileUtils = require('./utils/fileUtils');
 const config = require('./config/config');
-const sharp = require('sharp');
 
 async function inicializar() {
-    const logFile = path.join(__dirname, '../logs', `download_log_${new Date().toISOString().replace(/[:.]/g, '_')}.txt`);
-    fs.writeFileSync(logFile, 'Log de download de livros:\n', 'utf8');
-
+    const baseDirectory = path.join(__dirname, '../Livros', 'Paraiba', 'paroquia_de_nossa_senhora_dos_milagres');
+    
     if (!fileUtils.arquivoExiste(config.dataPath) || fileUtils.arquivoVazio(config.dataPath)) {
         console.log('Arquivo SJDC.json não encontrado ou vazio. Gerando um novo arquivo...');
         await gerarSJDC();
@@ -29,7 +27,7 @@ async function inicializar() {
     for (const livro of livros) {
         const livroId = livro.id;
         const titulo = livro.fields.title.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_');
-        const diretorioLivro = path.join(config.downloadPath, titulo);
+        const diretorioLivro = path.join(baseDirectory, titulo);
 
         // Cria o diretório para o livro, se não existir
         if (!fs.existsSync(diretorioLivro)) {
@@ -49,28 +47,25 @@ async function inicializar() {
         // Laço para baixar cada imagem do livro
         while (parseInt(numeroPagina) <= parseInt(ultimaPagina)) {
             const caminhoArquivo = path.join(diretorioLivro, `${numeroPagina}.jpg`);
+            const tamanhoImagem = '1500,2000'; // Definindo o tamanho padrão para a imagem
 
             // Verifica se a página já foi baixada
             if (paginasExistentes.has(numeroPagina)) {
                 console.log(`Página ${numeroPagina} já baixada. Pulando...`);
             } else {
-                const sucesso = await downloadService.baixarImagemComResolucao(livroId, numeroPagina, caminhoArquivo);
+                const sucesso = await downloadService.baixarImagemComResolucao(livroId, numeroPagina, caminhoArquivo, tamanhoImagem);
                 if (!sucesso) {
                     console.log(`Falhou ao baixar a página ${numeroPagina}.`);
-                    fs.appendFileSync(logFile, `Falhou ao baixar a página ${numeroPagina}\n`);
-                } else {
-                    try {
-                        const { width, height, size } = await sharp(caminhoArquivo).metadata();
-                        fs.appendFileSync(logFile, `Imagem ${numeroPagina}.jpg baixada com sucesso. Tamanho: ${size} bytes, Resolução: ${width}x${height}\n`);
-                    } catch (error) {
-                        console.log(`Erro ao verificar a imagem ${numeroPagina}: ${error.message}`);
-                        fs.appendFileSync(logFile, `Erro ao verificar a imagem ${numeroPagina}.jpg: ${error.message}\n`);
-                    }
                 }
             }
 
             numeroPagina = String(parseInt(numeroPagina) + 1).padStart(4, '0');
         }
+
+        // Verifica se todas as páginas foram baixadas
+        const totalPaginasBaixadas = fs.readdirSync(diretorioLivro).filter(f => f.endsWith('.jpg')).length;
+        const statusDownload = totalPaginasBaixadas === parseInt(ultimaPagina) ? 'completo' : 'incompleto';
+        console.log(`Download ${statusDownload} para o livro ${livroId}. Páginas baixadas: ${totalPaginasBaixadas}/${ultimaPagina}`);
     }
 
     console.log('Todos os livros foram processados. Verifique os logs para detalhes.');
