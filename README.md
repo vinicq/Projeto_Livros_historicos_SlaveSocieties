@@ -1,105 +1,93 @@
 # Projeto de Livros Históricos
 
-Este projeto automatiza o processo de download, verificação, armazenamento e análise de dados relacionados a livros históricos disponíveis via uma API pública. Ele utiliza Node.js para a automação, manipulação de arquivos e banco de dados, com a integração de bibliotecas específicas para facilitar o processamento das imagens e geração de relatórios.
+Este projeto automatiza o processo de download, verificação, armazenamento e análise de dados relacionados a livros históricos disponíveis via uma API pública. Ele utiliza **Python** para a automação, manipulação de arquivos e banco de dados, com a integração de bibliotecas específicas para facilitar o processamento das imagens e geração de relatórios.
+
+## Tecnologias Utilizadas
+
+- **Python** (v3.8 ou superior): Linguagem de programação utilizada para o desenvolvimento do projeto.
+- **Requests**: Biblioteca para fazer requisições HTTP.
+- **Pillow**: Biblioteca para manipulação de imagens.
+- **SQLite3**: Banco de dados local para armazenar informações dos livros.
+- **Pandas**: Para manipulação e análise de dados, incluindo a geração de arquivos Excel.
+- **dotenv**: Para gerenciar variáveis de ambiente, se necessário.
 
 ## Pré-requisitos
 
 Antes de rodar o projeto, certifique-se de que os seguintes itens estão instalados no seu sistema:
 
-1. **Node.js** (v20 ou superior) - [Instale o Node.js](https://nodejs.org/)
+1. **Python** (v3.8 ou superior) - [Instale o Python](https://www.python.org/downloads/)
 2. **Git** (para gerenciamento de código) - [Instale o Git](https://git-scm.com/)
 
-## Dependências do projeto
+## Configurando o Ambiente
 
-Este projeto utiliza várias bibliotecas e dependências, listadas no arquivo `package.json`. Aqui estão as principais:
+### 1. Criar um Ambiente Virtual
 
-- `axios`: para fazer requisições HTTP para a API de download de livros.
-- `fs` e `path`: para manipulação de arquivos e diretórios.
-- `sharp`: para manipular imagens e verificar se os arquivos de imagem estão completos ou corrompidos.
-- `sqlite3`: para gerenciar o banco de dados local.
-- `exceljs`: para gerar arquivos Excel com informações dos livros baixados.
-- `dotenv` (opcional): para gerenciar variáveis de ambiente, se necessário.
+Para isolar as dependências do projeto, é recomendável criar um ambiente virtual. Siga os passos abaixo:
 
-## Instalação
-
-Siga as instruções abaixo para configurar e rodar o projeto em sua máquina local.
-
-1. **Clone o repositório**
-
-   ```bash
-   git clone <URL_DO_REPOSITORIO>
-   cd Projeto_livros_historicos
-   ```
-
-2. **Instale as dependências**
-
-   Execute o seguinte comando para instalar todas as bibliotecas necessárias:
-
-   ```bash
-   npm install
-   ```
-
-## Configuração
-
-1. **Arquivo de Configuração (`src/config/config.js`)**
-
-   O arquivo de configuração contém os caminhos e URLs principais do projeto. Verifique se os diretórios de download e logs estão corretos:
-
-   ```javascript
-   module.exports = {
-       apiUrl: 'https://images.slavesocieties.org/iiif/3/',
-       downloadPath: './livros', // Pasta onde os arquivos serão baixados
-       logPath: './logs', // Pasta para os logs de download
-       databasePath: './pageObject', // Diretório para o banco de dados
-       excelOutputPath: './logs', // Diretório para os arquivos Excel
-       delayBetweenAttempts: 2000, // Intervalo entre tentativas de download (em ms)
-       retryAttempts: 3, // Número de tentativas de download
-       apiOptions: {
-           default: 'https://9x6n6cxjaa.execute-api.us-east-1.amazonaws.com/dev/?q=institution:%27Par%C3%B3quia%20de%20Nossa%20Senhora%20dos%20Milagres%27&q.parser=structured&size=10000'
-       }
-   };
-   ```
-
-2. **Configuração de variáveis de ambiente (opcional)**
-
-   Se precisar configurar variáveis de ambiente para a API, você pode usar um arquivo `.env`:
-
-   ```bash
-   API_KEY=SuaApiKeyAqui
-   ```
-
-## Executando o projeto
-
-### 1. Gerando o arquivo `SJDC.json`
-
-Para começar, é necessário gerar o arquivo `SJDC.json`, que contém os metadados dos livros:
+- Abra o terminal ou o PowerShell e navegue até o diretório do seu projeto:
 
 ```bash
-node scripts/gerarSJDC.js
+cd C:\Projetos\Projeto_livros_historicos
 ```
 
-Este script irá buscar dados da API e gerar o arquivo `SJDC.json` dentro do diretório `data`.
-
-### 2. Baixando os livros
-
-Após gerar o arquivo `SJDC.json`, execute o seguinte comando para iniciar o download dos livros:
+- Crie um novo ambiente virtual:
 
 ```bash
-node src/index.js
+python -m venv .venv
+```
+
+- Ative o ambiente virtual:
+
+  - Para Windows:
+    ```bash
+    .venv\Scripts\activate
+    ```
+
+  - Para macOS/Linux:
+    ```bash
+    source .venv/bin/activate
+    ```
+
+### 2. Instalar as Dependências
+
+Com o ambiente virtual ativado, instale as dependências necessárias usando o arquivo `requirements.txt`:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Executando o Projeto
+
+### 1. Gerando o arquivo `livros.json`
+
+Para começar, é necessário gerar o arquivo `livros.json`, que contém os metadados dos livros:
+
+```bash
+python scripts/gerar_livros.py
+```
+
+Este script irá buscar dados da API e gerar o arquivo `livros.json` dentro do diretório `data`.
+
+### 2. Baixando os Livros
+
+Após gerar o arquivo `livros.json`, execute o seguinte comando para iniciar o download dos livros:
+
+```bash
+python src/index.py
 ```
 
 Este script irá:
-- Baixar os livros especificados no `SJDC.json`.
+- Baixar os livros especificados no `livros.json`.
 - Salvar os arquivos na pasta `livros`.
 - Verificar a integridade das imagens.
 - Gerar logs com informações dos arquivos baixados.
 
-### 3. Gerando o banco de dados
+### 3. Gerando o Banco de Dados
 
 Para organizar os dados em um banco de dados SQLite, execute:
 
 ```bash
-node scripts/gerarBancoDeDados.js
+python scripts/gerar_banco_dados.py
 ```
 
 Este script irá:
@@ -109,19 +97,19 @@ Este script irá:
 
 ### 4. Exportando para Excel
 
-Para exportar os dados dos livros para um arquivo Excel, o script `gerarBancoDeDados.js` já inclui a funcionalidade de gerar um arquivo `.xlsx` na pasta `logs`. O nome do arquivo incluirá a data de geração para facilitar a organização, por exemplo:
+Para exportar os dados dos livros para um arquivo Excel, o script `gerar_banco_dados.py` já inclui a funcionalidade de gerar um arquivo `.xlsx` na pasta `logs`. O nome do arquivo incluirá a data de geração para facilitar a organização, por exemplo:
 
 ```
 logs/livros_info_2024-10-11.xlsx
 ```
 
-## Estrutura do projeto
+## Estrutura do Projeto
 
 O projeto é organizado da seguinte forma:
 
 ```
 Projeto_livros_historicos/
-├── data/                   # Arquivos de dados (e.g., SJDC.json)
+├── data/                   # Arquivos de dados (e.g., livros.json)
 ├── logs/                   # Logs e arquivos Excel gerados
 ├── livros/                 # Livros baixados (imagens)
 ├── pageObject/             # Banco de dados SQLite
@@ -137,11 +125,11 @@ Projeto_livros_historicos/
 
 1. **Erro ao conectar à API**
 
-   Verifique se o `apiUrl` no arquivo `config.js` está correto e acessível. Se necessário, atualize para um URL alternativo.
+   Verifique se o `api_url` no arquivo `config.py` está correto e acessível. Se necessário, atualize para um URL alternativo.
 
 2. **Falha ao baixar imagens**
 
-   Se uma imagem não baixar corretamente, o script tentará novamente até o limite definido em `retryAttempts`. Verifique se há problemas de rede ou com a API.
+   Se uma imagem não baixar corretamente, o script tentará novamente até o limite definido em `retry_attempts`. Verifique se há problemas de rede ou com a API.
 
 3. **Banco de dados não gerado**
 
@@ -149,7 +137,7 @@ Projeto_livros_historicos/
 
 4. **Dependências faltando**
 
-   Se o projeto reclamar de dependências não encontradas, execute `npm install` para instalar novamente todas as dependências.
+   Se o projeto reclamar de dependências não encontradas, execute `pip install -r requirements.txt` para instalar novamente todas as dependências.
 
 ## Melhorias Futuras
 
@@ -160,14 +148,3 @@ Projeto_livros_historicos/
 ## Conclusão
 
 Este projeto fornece uma base para automação de download, verificação e análise de dados históricos. Com as bibliotecas e serviços configurados corretamente, ele facilita o processo de coleta e organização dos dados para fins de estudo ou preservação.
-```
-
-```
-# Gerar db e arquivo xlsx
-node scripts/gerarBancoDeDados.js
-```
-
-```
-# Rodar o projeto
-node src/index.js
-```
