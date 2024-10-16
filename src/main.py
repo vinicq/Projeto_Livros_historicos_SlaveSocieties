@@ -11,6 +11,8 @@ from datetime import datetime
 from services.api_service import baixar_dados_apis
 from services.file_service import processar_livro_especifico, processar_livros
 from services.database_service import inicializar_banco_dados, verificar_todos_livros_baixados
+from ai.test_ai import teste_aplicar_ocr  # Importa a função de teste de OCR
+from services.file_service import baixar_imagens_via_manifest
 
 def configurar_logger():
     log_path = 'logs'
@@ -46,10 +48,10 @@ def main():
     conn = inicializar_banco_dados()
 
     # Baixar dados das APIs com a conexão 'conn'
-    paroquia_data, forum_data = baixar_dados_apis(conn)  # <-- Passe a conexão aqui
+    paroquia_data, forum_data, forum_mlor = baixar_dados_apis(conn)
 
     # Perguntar ao usuário qual conjunto de dados deseja processar
-    escolha = input("Qual conjunto de dados deseja processar? 1 para Paróquia de Nossa Senhora dos Milagres ou 2 para Fórum Nivaldo de Farias Brito: ")
+    escolha = input("Qual conjunto de dados deseja processar? 1 para Paróquia de Nossa Senhora dos Milagres, 2 para Fórum Nivaldo de Farias Brito ou 3 para Fórum Miguel Levino de Oliveira Ramos: ")
 
     if escolha == '1':
         pasta_base = r"livros\Paraiba\paroquia_de_nossa_senhora_dos_milagres"
@@ -57,6 +59,18 @@ def main():
     elif escolha == '2':
         pasta_base = r"livros\Paraiba\arquivo_do_forum_nivaldo_de_farias_brito"
         livros_data = forum_data
+    elif escolha == '3':
+        pasta_base = r"livros\Paraiba\Mamanguape\arquivo_do_forum_miguel_levino_de_oliveira_ramos"
+        livros_data = forum_mlor
+        # Processo especial para Fórum Miguel Levino de Oliveira Ramos
+        for livro in livros_data:
+            processar_livro_especifico(livro, pasta_base, conn)
+            
+            # Verificar se o campo 'id' existe antes de tentar baixar as imagens
+            if 'id' in livro:
+                baixar_imagens_via_manifest(livro['id'], pasta_base, conn)
+            else:
+                logging.error(f"Livro sem campo 'id': {livro}")
     else:
         print("Escolha inválida.")
         return
@@ -78,6 +92,11 @@ def main():
             print("Escolha inválida.")
     else:
         print("Escolha inválida. Por favor, insira um número válido.")
+
+    # Perguntar ao usuário se deseja executar a parte de IA
+    escolha_ia = input("Deseja executar a parte de IA? (s/n): ")
+    if escolha_ia.lower() == 's':
+        teste_aplicar_ocr()  # Chama a função de teste de OCR
 
     verificar_todos_livros_baixados(conn)
     conn.close()

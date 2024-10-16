@@ -125,3 +125,49 @@ def baixar_imagens(id_livro, livro_path, paginas_existentes, total_paginas_esper
 
     # Atualiza o banco de dados com as páginas baixadas
     atualizar_banco_dados(conn, os.path.basename(livro_path), total_paginas, True, total_tamanho)
+
+def baixar_imagens_via_manifest(id_livro, livro_path, conn):
+    """Função para baixar as melhores imagens via manifest IIIF"""
+    urls_imagens = baixar_manifest_iiif(id_livro)  # Obtém as URLs das melhores imagens
+    
+    if not urls_imagens:
+        logging.error(f"Não foi possível obter imagens do livro ID {id_livro}.")
+        return
+
+    total_paginas = 0
+    total_tamanho = 0
+
+    for i, url_imagem in enumerate(urls_imagens):
+        try:
+            logging.info(f"Iniciando download da página {i+1} do livro ID {id_livro}")
+            response = requests.get(url_imagem)
+            response.raise_for_status()
+            
+            tamanho = len(response.content)
+            total_tamanho += tamanho
+
+            with open(os.path.join(livro_path, f"{i+1:04d}.jpg"), 'wb') as f:
+                f.write(response.content)
+            
+            total_paginas += 1
+            logging.info(f"Download da página {i+1} concluído para o livro ID {id_livro}.")
+        
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Erro ao baixar a página {i+1} do livro ID {id_livro}: {e}")
+
+    # Atualizar o banco de dados com o progresso do download
+    atualizar_banco_dados(conn, os.path.basename(livro_path), total_paginas, True, total_tamanho)
+
+def baixar_manifest_iiif(id_livro):
+    """Função para baixar o manifest IIIF e retornar URLs de imagens"""
+    url_manifest = f"https://s3.amazonaws.com/iiif.slavesocieties.org/manifest/{id_livro}.json"
+    try:
+        response = requests.get(url_manifest)
+        response.raise_for_status()
+        manifest = response.json()
+        imagens = manifest['sequences'][0]['canvases']
+        urls_imagens = [canvas['images'][0]['resource']['@id'] for canvas in imagens]
+        return urls_imagens
+    except Exception as e:
+        logging.error(f"Erro ao baixar o manifest IIIF: {e}")
+        return []
