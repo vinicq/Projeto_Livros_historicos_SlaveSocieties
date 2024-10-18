@@ -1,18 +1,46 @@
-# Ignorar node_modules e diretórios específicos
-node_modules/
+# Diretórios e arquivos de dados gerados
 livros/
 logs/
 dist/
 build/
 out/
+data/
 
-# Ignorar arquivos de configuração e banco de dados
+# Configurações específicas de ambiente
 .env
 *.db
 
-# Ignorar arquivos temporários e de log
-*.tmp
+
+# Arquivos de log
 *.log
 
-# Ignorar configurações do VSCode
+# Arquivos temporários
+*.tmp
+*.bak
+*.swp
+*.json
+
+# Pastas e arquivos do Virtual Environment (venv)
+.venv/
+venv/
+ENV/
+env.bak/
+env/
+
+# Configurações de IDEs (VSCode, PyCharm, etc.)
 .vscode/
+.idea/
+
+# Ignorar cache do Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Arquivos de pacotes e builds
+*.egg-info/
+*.eggs/
+pip-log.txt
+
+# Ignorar arquivos do sistema operacional
+.DS_Store
+Thumbs.db
