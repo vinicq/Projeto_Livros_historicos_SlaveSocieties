@@ -84,7 +84,7 @@ The project is organized around multiple services to facilitate downloading, dat
 
 1. Clone este repositório:
    ```bash
-   git clone https://github.com/seu-usuario/projeto-livros-historicos.git
+   git clone https://github.com/seu-usuario/Projeto_Livros_historicos_SlaveSocieties.git
    ```
 
 2. Crie um ambiente virtual e ative-o:
