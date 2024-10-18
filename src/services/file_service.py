@@ -26,46 +26,52 @@ def carregar_dados_json(caminho_json):
         return None
 
 
-def criar_pasta_e_descricao(id_livro, descricao, pasta_base, caminho_json):
-    """
-    Cria uma pasta para o livro baseado no título extraído do JSON e salva uma descrição.
-    """
-    # Buscar o título correto no JSON
-    titulo_livro = obter_titulo_do_json(id_livro, caminho_json)
-    
-    # Sanitizar o título do livro
-    titulo_sanitizado = sanitizar_titulo(titulo_livro)
-    
-    # Criar o caminho completo para salvar o livro
+def criar_pasta_e_descricao(id_livro, descricao, pasta_base, caminho_json, titulo_livro):
+    # Sanitizar o título do livro ou usar um padrão "sem_titulo" se não houver título
+    if not titulo_livro:
+        logging.warning("Título do livro não encontrado. Usando 'sem_titulo'.")
+        titulo_sanitizado = "sem_titulo"
+    else:
+        titulo_sanitizado = sanitizar_titulo(titulo_livro)
+
+    # Criar o caminho correto dentro da pasta_base
     livro_path = os.path.join(pasta_base, titulo_sanitizado)
-    
+
     # Criar a pasta se não existir
     if not os.path.exists(livro_path):
         os.makedirs(livro_path)
         logging.info(f"Pasta {livro_path} criada com sucesso.")
     else:
         logging.info(f"Pasta {livro_path} já existe.")
-    
+
     # Salvar a descrição em um arquivo
     caminho_arquivo_descricao = os.path.join(livro_path, 'descricao.txt')
     with open(caminho_arquivo_descricao, 'w', encoding='utf-8') as f:
         f.write(descricao)
-    
+
     return livro_path
 
 
+from services.json_utils import obter_titulo_do_json
+
+# Verificar se o título do livro e o caminho da pasta base estão sendo passados corretamente
 def processar_livro(livro, pasta_base, modo, conn, caminho_json):
     try:
-        # Carregar dados do arquivo JSON
         dados_json = carregar_dados_json(caminho_json)
         if dados_json is None:
             logging.error(f"Não foi possível carregar os dados do JSON: {caminho_json}")
             return
 
         id_livro = str(livro['id'])
+        
+        titulo_livro = obter_titulo_do_json(caminho_json, id_livro)
+        
         descricao = livro.get('fields', {}).get('description', 'Sem descrição disponível')
 
-        livro_path = criar_pasta_e_descricao(id_livro, descricao, pasta_base, caminho_json)
+        # Verificar se o título do livro e a pasta base estão corretos
+        logging.info(f"Título do livro: {titulo_livro}, Pasta base: {pasta_base}")
+
+        livro_path = criar_pasta_e_descricao(id_livro, descricao, pasta_base, caminho_json, titulo_livro)
 
         if modo == "IIIF_manifest":
             if not verificar_manifest_no_banco(conn, id_livro):

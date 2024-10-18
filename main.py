@@ -15,7 +15,7 @@ from services.shared_services import verificar_manifest_no_banco
 
 # Função para configurar o logger, que vai registrar as atividades do sistema
 def configurar_logger():
-    log_path = 'logs'  # Diretório onde os logs serão salvos
+    log_path = 'logs'
     if not os.path.exists(log_path):
         os.makedirs(log_path)
     log_filename = os.path.join(log_path, f"log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
@@ -37,7 +37,7 @@ def listar_livros(livros_data):
     for i, livro in enumerate(livros_data, start=1):
         titulo = livro['fields'].get('title', 'Título desconhecido')
         print(f"{i}. {titulo}")
-    print(f"{len(livros_data) + 1}. TODOS")  # Adiciona a opção para baixar todos os livros
+    print(f"{len(livros_data) + 1}. TODOS")  # Adiciona opção para baixar todos
 
 
 # Função para capturar a escolha do usuário sobre qual livro processar
@@ -134,7 +134,7 @@ def main():
                     logging.info(f"Manifesto do livro {livro['fields']['title']} já existe no banco.")
                 else:
                     # Adicionando 'caminho_json' na chamada
-                    baixar_e_salvar_manifest(conn, livro['id'], livro.get('titulo', 'Título desconhecido'), caminho_json)
+                    baixar_e_salvar_manifest(conn, livro['id'], livro.get('titulo', pasta_base), caminho_json)
                 processar_livro(livro, pasta_base, "IIIF_manifest" if escolha in ['3', '5', '6'] else "sem_manifest", conn, caminho_json)
         elif 1 <= escolha_livro <= len(livros_data):
             # Processar o livro específico escolhido
@@ -143,7 +143,7 @@ def main():
                 logging.info(f"Manifesto do livro {livro_escolhido['fields']['title']} já existe no banco.")
             else:
                 # Adicionando 'caminho_json' na chamada
-                baixar_e_salvar_manifest(conn, livro_escolhido['id'], livro_escolhido.get('titulo', 'Título desconhecido'), caminho_json)
+                baixar_e_salvar_manifest(conn, livro_escolhido['id'], livro_escolhido.get('titulo', pasta_base), caminho_json)
             processar_livro(livro_escolhido, pasta_base, "IIIF_manifest" if escolha in ['3', '5', '6'] else "sem_manifest", conn, caminho_json)
         else:
             print("Escolha inválida.")

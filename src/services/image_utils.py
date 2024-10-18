@@ -44,11 +44,18 @@ def salvar_imagens(conn, id_livro, pasta, urls_imagens, caminho_json):
     
     for i, url_imagem in enumerate(urls_imagens):
         try:
-            imagem_path = os.path.join(caminho_pasta, f'imagem_{i+1}.jpg')
+            nome_imagem_completo = url_imagem.split('/')[-5]
+            nome_imagem = nome_imagem_completo.split('-')[-1]
+            imagem_path = os.path.join(caminho_pasta, nome_imagem)
+
+            # Baixar a imagem
             response = requests.get(url_imagem)
             response.raise_for_status()
+
+            # Salvar a imagem no caminho especificado
             with open(imagem_path, 'wb') as f:
                 f.write(response.content)
+            
             logging.info(f"Salvando imagem {i+1} de {len(urls_imagens)}: {url_imagem}")
         except Exception as e:
             logging.error(f"Erro ao salvar imagem {i+1} para o livro {id_livro}: {e}")

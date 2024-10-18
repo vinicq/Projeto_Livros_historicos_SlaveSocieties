@@ -12,17 +12,14 @@ def baixar_livros(api_url, json_filename):
         if not os.path.exists(data_path):
             os.makedirs(data_path)
 
-        # Verifica se a resposta da API contém dados
         if response.text.strip() == "":
             logging.error(f"A resposta da API está vazia: {api_url}")
             return []
 
-        # Salva o conteúdo JSON
         with open(os.path.join(data_path, json_filename), 'w', encoding='utf-8') as f:
             f.write(response.text)
         logging.info(f"Dados baixados e salvos em {json_filename}")
 
-        # Retorna o conteúdo JSON
         try:
             data = response.json()
             if 'hits' in data and 'hit' in data['hits']:
@@ -32,24 +29,21 @@ def baixar_livros(api_url, json_filename):
                 return []
         except ValueError as e:
             logging.error(f"Erro ao processar a resposta da API: {e}")
-            logging.error(f"Conteúdo retornado: {response.text[:200]}")  # Mostra os primeiros 200 caracteres da resposta
+            logging.error(f"Conteúdo retornado: {response.text[:200]}")
             return []
     except requests.exceptions.RequestException as e:
         logging.error(f"Erro ao acessar a API: {e}")
         return []
 
 def baixar_dados_apis(conn):
-    # APIs que seguem o padrão JSON
     api_paroquia_de_nossa_senhora_dos_milagres = "https://9x6n6cxjaa.execute-api.us-east-1.amazonaws.com/dev/?q=institution:%27Par%C3%B3quia%20de%20Nossa%20Senhora%20dos%20Milagres%27&q.parser=structured&size=10000"
     api_arquivo_do_forum_nivaldo_de_farias_brito = "https://9x6n6cxjaa.execute-api.us-east-1.amazonaws.com/dev/?q=institution:%27Arquivo%20do%20F%C3%B3rum%20Nivaldo%20de%20Farias%20Brito%27&q.parser=structured&size=10000"
     api_arquivo_do_forum_miguel_levino_de_oliveira_ramos = "https://9x6n6cxjaa.execute-api.us-east-1.amazonaws.com/dev/?q=institution:%27Arquivo%20do%20F%C3%B3rum%20Miguel%20Levino%20de%20Oliveira%20Ramos%27&q.parser=structured&size=10000"
-
     api_arquivo_historico_paraiba = "https://9x6n6cxjaa.execute-api.us-east-1.amazonaws.com/dev/?q=institution:%27Arquivo%20Hist%C3%B3rico%20do%20Estado%20da%20Para%C3%ADba%27&q.parser=structured&size=10000"
     api_forum_judicial_joao_pessoa = "https://9x6n6cxjaa.execute-api.us-east-1.amazonaws.com/dev/?q=institution:%27Arquivo%20do%20F%C3%B3rum%20Judicial%20Comarca%20de%20Jo%C3%A3o%20Pessoa%27&q.parser=structured&size=10000"
     api_memorial_tribunal_paraiba = "https://9x6n6cxjaa.execute-api.us-east-1.amazonaws.com/dev/?q=institution:%27Arquivo%20do%20Memorial%20do%20Tribunal%20de%20Justi%C3%A7a%20da%20Para%C3%ADba%27&q.parser=structured&size=10000"
     api_instituto_historico_paraibano = "https://9x6n6cxjaa.execute-api.us-east-1.amazonaws.com/dev/?q=institution:%27Instituto%20Hist%C3%B3rico%20e%20Geogr%C3%A1fico%20Paraibano%27&q.parser=structured&size=10000"
 
-    # Baixar dados de cada API e salvar localmente
     paroquia_data = baixar_livros(api_paroquia_de_nossa_senhora_dos_milagres, "paroquia_de_nossa_senhora_dos_milagres.json")
     forum_data = baixar_livros(api_arquivo_do_forum_nivaldo_de_farias_brito, "arquivo_do_forum_nivaldo_de_farias_brito.json")
     forum_mlor = baixar_livros(api_arquivo_do_forum_miguel_levino_de_oliveira_ramos, "arquivo_do_forum_miguel_levino_de_oliveira_ramos.json")
@@ -58,9 +52,6 @@ def baixar_dados_apis(conn):
     memorial_tribunal_data = baixar_livros(api_memorial_tribunal_paraiba, "arquivo_do_memorial_do_tribunal_de_justica_da_paraiba.json")
     instituto_historico_data = baixar_livros(api_instituto_historico_paraibano, "instituto_historico_e_geografico_paraibano.json")
 
-    # NÃO CHAME MAIS OS MANIFESTS AUTOMATICAMENTE AQUI
-
-    # Inserir dados no banco de dados para as APIs JSON
     inserir_livros(conn, paroquia_data)
     inserir_livros(conn, forum_data)
     inserir_livros(conn, forum_mlor)
@@ -69,9 +60,7 @@ def baixar_dados_apis(conn):
     inserir_livros(conn, memorial_tribunal_data or [])
     inserir_livros(conn, instituto_historico_data or [])
 
-    # Retornar todos os dados para processamento posterior
     return (paroquia_data, forum_data, forum_mlor, arquivo_historico_data, forum_judicial_data, memorial_tribunal_data, instituto_historico_data)
-
 
 def baixar_manifest_iiif_usando_json(json_filename):
     """Função para carregar o JSON salvo e usar o ID do livro para baixar o manifest IIIF"""
