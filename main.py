@@ -129,7 +129,7 @@ def main():
         escolha_livro = int(escolha_livro)
         if escolha_livro == len(livros_data) + 1:
             # Baixar todos os manifests e processar todos os livros
-            for livro in livros_data:
+            for livro in reversed(livros_data):
                 if verificar_manifest_no_banco(conn, livro['id']):
                     logging.info(f"Manifesto do livro {livro['fields']['title']} já existe no banco.")
                 else:
